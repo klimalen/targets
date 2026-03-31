@@ -487,7 +487,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
     <div class="pwa-icon">🌿</div>
     <div>
       <div class="pwa-title">Установить приложение</div>
-      <div class="pwa-desc" id="pwaBannerDesc">Добавьте Habits на главный экран для быстрого доступа — работает без интернета!</div>
+      <div class="pwa-desc" id="pwaBannerDesc">Добавьте Habits на главный экран для быстрого доступа. Работает без интернета. </div>
     </div>
   </div>
   <div class="pwa-ios-hint" id="pwaIosHint" style="display:none">
@@ -546,7 +546,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   function canShow(){if(shown)return false;if(window.isPWAInstalled())return false;var d=localStorage.getItem('pwa_dismissed');if(d&&Date.now()-parseInt(d)<24*60*60*1000)return false;return true;}
   function showBanner(){if(!canShow())return;shown=true;var banner=document.getElementById('pwa-banner');var isIos=window.isIOS()&&!window._pwaPrompt;if(isIos){document.getElementById('pwaIosHint').style.display='flex';document.getElementById('pwaInstallBtn').style.display='none';}banner.classList.add('show');}
   function hideBanner(){document.getElementById('pwa-banner').classList.remove('show');}
-  function scheduleBanner(){if(!canShow())return;setTimeout(showBanner,10000);}
+  function scheduleBanner(){if(!canShow())return;setTimeout(showBanner,45000);}
   window.addEventListener('pwa-installable',function(){scheduleBanner();});
   if(window.isIOS()&&!window.isPWAInstalled()){scheduleBanner();}
   document.getElementById('pwaInstallBtn').addEventListener('click',async function(){if(!window._pwaPrompt)return;hideBanner();window._pwaPrompt.prompt();var res=await window._pwaPrompt.userChoice;window._pwaPrompt=null;if(res.outcome==='accepted'){showToast('Приложение установлено! 🎉','success');}});
