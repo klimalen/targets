@@ -827,7 +827,7 @@ function buildStatsHTML(type,ref){
     </div>`;
   });
   h+=`<div class="streak-legend"><strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас.<br><strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время.</div></div>`;
-  const hmLabel=type==='week'?'неделю':type==='month'?'месяц':`${ref.getFullYear()} год`;
+  const hmLabel=type==='week'?'неделя':type==='month'?'месяц':`${ref.getFullYear()} год`;
   h+=`<div class="stat-card">
     <div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div>
     <div class="heatmap-wrap">${buildHeatmap(type,ref)}</div>
