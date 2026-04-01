@@ -1047,11 +1047,9 @@ function openAuthModal(initialMode='login'){
     const btn=document.getElementById('forgotSubmitBtn');
     if(btn){btn.classList.add('loading');btn.disabled=true;}
     try{
-      const{error}=await sb.auth.resetPasswordForEmail(email,{
-        // redirectTo: URL страницы — Supabase добавит #type=recovery&access_token=...
-        // detectSessionInUrl:true в конфиге клиента поймает это автоматически
-        redirectTo: window.location.href
-      });
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+  redirectTo: 'https://klimalen.github.io/targets/'
+});
       if(error)throw error;
       if(infoEl){infoEl.textContent='Письмо отправлено! Проверьте почту и перейдите по ссылке.';infoEl.classList.add('show');}
       if(btn){btn.classList.remove('loading');btn.disabled=true;} // держим кнопку заблокированной
