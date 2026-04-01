@@ -888,7 +888,7 @@ function openAuthModal(initialMode='login'){
     const password=document.getElementById('authPassword').value;
     try{
       if(mode==='login'){const{error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;closeModal();}
-      else{const{error}=await sb.auth.signUp({email,password});if(error)throw error;closeModal();showToast('🎉 Проверьте почту, чтобы подтвердить email','success');}
+      else{const{error}=await sb.auth.signUp({email,password});if(error)throw error;closeModal();showToast('🎉 Аккаунт создан','success');}
     }catch(e){console.error('[habits] auth error',e);showAuthError(authErrorText(e));}
     finally{setLoading(false);}
   }
