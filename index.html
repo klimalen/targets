@@ -1753,9 +1753,134 @@ window.addEventListener('resize',()=>renderWelcomeBanner());
 /* ============================================================
    BOOT
 ============================================================ */
+
+// Парсим хэш URL ДО инициализации Supabase
+// Supabase с detectSessionInUrl:true сам обработает токены,
+// но нам нужно знать тип заранее для правильного UX
+function parseHashParams() {
+  const hash = window.location.hash.replace(/^#/, '');
+  const params = {};
+  // URL может содержать два # подряд (баг GitHub Pages + Supabase)
+  // Берём всё после первого #
+  const allHash = window.location.href.split('#').slice(1).join('#');
+  allHash.split('&').forEach(part => {
+    const [k, v] = part.split('=');
+    if (k) params[decodeURIComponent(k)] = decodeURIComponent(v || '');
+  });
+  return params;
+}
+
+async function initAuth() {
+  const hashParams = parseHashParams();
+  const isRecovery = hashParams['type'] === 'recovery';
+  const hasError = hashParams['error'];
+
+  // Если в URL есть ошибка (например otp_expired)
+  if (hasError) {
+    const errDesc = hashParams['error_description'] || hashParams['error'] || '';
+    // Чистим URL
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+    const msg = errDesc.toLowerCase().includes('expired')
+      ? 'Ссылка для сброса пароля устарела. Запросите новую.'
+      : 'Ссылка недействительна. Запросите новую.';
+    // Рендерим приложение и показываем ошибку
+    const local = loadLocalState();
+    state.habits = local.habits || [];
+    state.completions = local.completions || {};
+    state.celebrations = local.celebrations || {};
+    renderHeaderAuth();
+    render();
+    // Небольшая задержка чтобы UI успел отрисоваться
+    setTimeout(() => {
+      showToast(msg, 'error');
+      // Открываем форму запроса нового письма
+      openAuthModal('login');
+      // Переключаем на forgot после открытия модалки
+      setTimeout(() => {
+        document.getElementById('forgotBtn')?.click();
+      }, 100);
+    }, 500);
+    // Всё равно подписываемся на auth
+    sb.auth.onAuthStateChange(handleAuthChange);
+    return;
+  }
+
+  // Быстрый рендер из localStorage чтобы не было белого экрана
+  const local = loadLocalState();
+  state.habits = local.habits || [];
+  state.completions = local.completions || {};
+  state.celebrations = local.celebrations || {};
+  renderHeaderAuth();
+  render();
+
+  // Если это recovery-ссылка — Supabase сам создаст сессию через detectSessionInUrl
+  // onAuthStateChange получит PASSWORD_RECOVERY и покажет форму
+  // Просто подписываемся и ждём
+  if (isRecovery) {
+    // Показываем индикатор загрузки пока Supabase обрабатывает токен
+    showToast('Проверяем ссылку...', 'info');
+  }
+
+  // Проверяем текущую сессию
+  const { data: { user } } = await sb.auth.getUser();
+  currentUser = user || null;
+
+  if (currentUser && !isRecovery) {
+    await loadBackendData();
+    migrateLocalData().then(() => loadBackendData());
+  }
+  renderHeaderAuth();
+
+  // Подписка на auth события
+  sb.auth.onAuthStateChange(handleAuthChange);
+}
+
+async function handleAuthChange(event, session) {
+  console.log('[habits] auth event:', event);
+  const prevUser = currentUser;
+  currentUser = session?.user || null;
+
+  if (event === 'PASSWORD_RECOVERY') {
+    // Supabase успешно обработал recovery-токен
+    // Очищаем URL
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+    showResetPasswordScreen();
+    return;
+  }
+
+  if (event === 'SIGNED_IN') {
+    if (!prevUser) {
+      renderHeaderAuth();
+      await migrateLocalData();
+      await loadBackendData();
+      render();
+    }
+  }
+
+  if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    const local = loadLocalState();
+    state.habits = local.habits || [];
+    state.completions = local.completions || {};
+    state.celebrations = local.celebrations || {};
+    activeFilters = null;
+    renderHeaderAuth();
+    render();
+  }
+
+  if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+    currentUser = session?.user || null;
+  }
+}
+
 renderHeaderAuth();
 render();
-initAuth().catch(e=>console.error('[habits] initAuth failed',e));
+initAuth().catch(e => console.error('[habits] initAuth failed', e));
+
 </script>
 </body>
 </html>
