@@ -1588,9 +1588,11 @@ function getUserRank(){
     possible+=state.habits.length;
   }
   const pct=possible?Math.round(done/possible*100):0;
-  if(pct>=75)return{icon:'🏆',name:'Мастер привычек',desc:'Вы невероятно дисциплинированы! Так держать!',pct,next:null};
-  if(pct>=40)return{icon:'⭐',name:'Уверенный практик',desc:'Вы на правильном пути, привычки становятся частью вашей жизни.',pct,next:{target:75,name:'Мастер привычек'}};
-  return{icon:'🌱',name:'Начинающий энтузиаст',desc:'Отличное начало! Каждая отметка — шаг к стабильности.',pct,next:{target:40,name:'Уверенный практик'}};
+  if(pct>=80)return{icon:'🏆',name:'Чемпион',desc:'Абсолютный максимум! Вы покоряете свои цели.',pct,next:null};
+  if(pct>=60)return{icon:'⭐',name:'Высшая лига',desc:'Ваша дисциплина — пример для подражания.',pct,next:{target:80,name:'Чемпион'}};
+  if(pct>=40)return{icon:'🎯',name:'Стабильный темп',desc:'Вы нашли свой ритм — привычки работают на вас.',pct,next:{target:60,name:'Высшая лига'}};
+  if(pct>=20)return{icon:'⚡',name:'Разгон',desc:'Набираете обороты — каждый день прибавляет темп!',pct,next:{target:40,name:'Стабильный темп'}};
+  return{icon:'🏃',name:'На старте',desc:'Главное — начать. А вы уже это сделали!',pct,next:{target:20,name:'Разгон'}};
 }
 
 function buildStatsHTML(type,ref){
