@@ -216,34 +216,36 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .stat-pct{font-size:.66rem;color:var(--text3);margin-top:3px;text-align:right}
 .streak-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(247,201,79,.1);border:1px solid rgba(247,201,79,.25);color:var(--yellow);padding:2px 6px;border-radius:20px;font-size:.68rem;font-weight:600}
 
-/* ── STREAK LEGEND — теперь как тултип ── */
-.streak-legend-card{
-  margin-top:9px;background:var(--bg4);border-radius:var(--rs);
-  padding:8px 11px;border:1px solid var(--border);
+/* ── STREAK LEGEND — тултип в заголовке карточки ── */
+.streak-card-header{
   display:flex;align-items:center;justify-content:space-between;
-  position:relative;cursor:pointer;transition:border-color var(--tr);
+  margin-bottom:10px;position:relative;
 }
-.streak-legend-card:hover{border-color:var(--accent)}
-.streak-legend-labels{display:flex;gap:12px;font-size:.72rem;color:var(--text2)}
-.streak-legend-labels span{display:flex;align-items:center;gap:3px}
+.streak-card-header-left{
+  font-size:.68rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--text3);
+}
 .streak-tip-btn{
-  width:15px;height:15px;border-radius:50%;
-  background:var(--bg3);border:1px solid var(--border);color:var(--text3);
-  font-size:.58rem;font-weight:700;display:flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--bg4);border:1px solid var(--border);color:var(--text3);
+  font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;
   cursor:pointer;transition:all var(--tr);flex-shrink:0;line-height:1;
+  user-select:none;
 }
 .streak-tip-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 .streak-tip-bubble{
-  position:absolute;bottom:calc(100% + 7px);left:0;right:0;
+  position:absolute;top:calc(100% + 7px);right:0;
+  width:240px;
   background:var(--bg4);border:1px solid var(--accent);border-radius:var(--rs);
-  padding:9px 11px;font-size:.73rem;color:var(--text2);line-height:1.55;
-  box-shadow:var(--shadow);z-index:600;pointer-events:none;
+  padding:10px 12px;font-size:.73rem;color:var(--text2);line-height:1.6;
+  box-shadow:var(--shadow);z-index:600;
 }
 .streak-tip-bubble::before{
-  content:'';position:absolute;top:100%;right:16px;
-  border:5px solid transparent;border-top-color:var(--accent);
+  content:'';position:absolute;bottom:100%;right:8px;
+  border:5px solid transparent;border-bottom-color:var(--accent);
 }
 .streak-tip-bubble.hidden{display:none}
+
 
 .heatmap-wrap{overflow-x:auto;padding-bottom:4px}
 .heatmap-grid{display:flex;gap:3px}
@@ -1389,36 +1391,50 @@ function buildStatsHTML(type,ref){
   state.habits.forEach(hb=>{const done=periodStats(hb.id,type,ref);const goal=goalForPeriod(hb,type);const pct=goal?Math.min(100,Math.round(done/goal*100)):null;const fc=pct!==null?(pct<50?'r':pct<80?'y':'g'):'g';const streak=calcStreak(hb.id);h+=`<div class="stat-habit-item"><div class="stat-habit-top"><div class="stat-habit-name"><div style="width:22px;height:22px;border-radius:6px;background:${hb.color}33;display:flex;align-items:center;justify-content:center;font-size:.8rem">${hb.emoji}</div>${esc(hb.name)}</div><div style="display:flex;align-items:center;gap:5px">${streak.current>=2?`<span class="streak-badge">🔥${streak.current}</span>`:''}<span class="stat-habit-count">${done}${goal?'/'+goal:''}</span></div></div>${goal?`<div class="pb-wrap"><div class="pb-fill ${fc}" style="width:${pct}%"></div></div><div class="stat-pct">${pct}%</div>`:''}</div>`;});
   h+=`</div>`;
 
-  /* ── ПРАВКА 2: блок стриков с тултипом вместо текста ── */
-  h+=`<div class="stat-card"><div class="stat-card-title">🔥 Стрики</div>`;
+  /* ── блок стриков — кнопка ? в заголовке ── */
+  const streakUid = 'st_' + Math.random().toString(36).slice(2,7);
+  h+=`<div class="stat-card">
+    <div class="streak-card-header">
+      <div class="streak-card-header-left">🔥 Стрики</div>
+      <div style="position:relative">
+        <button class="streak-tip-btn" data-streak-tip="${streakUid}">?</button>
+        <div class="streak-tip-bubble hidden" id="streakTip_${streakUid}">
+          <strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас<br><br>
+          <strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время
+        </div>
+      </div>
+    </div>`;
   state.habits.forEach(hb=>{const s=calcStreak(hb.id);h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px"><div style="display:flex;align-items:center;gap:6px;font-size:.81rem">${hb.emoji} ${esc(hb.name)}</div><div style="display:flex;gap:8px;font-size:.75rem"><span>🔥 ${s.current}</span><span style="color:var(--yellow)">⭐ ${s.max}</span></div></div>`;});
-  h+=`<div class="streak-legend-card" id="streakLegendCard">
-    <div class="streak-legend-labels">
-      <span>🔥 Текущая серия</span>
-      <span>⭐ Максимальная серия</span>
-    </div>
-    <button class="streak-tip-btn" id="streakTipBtn" title="Подробнее">?</button>
-    <div class="streak-tip-bubble hidden" id="streakTipBubble">
-      <strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас.<br><br>
-      <strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время.
-    </div>
-  </div></div>`;
+  h+=`</div>`;
+
 
   const hmLabel=type==='week'?'неделю':type==='month'?'месяц':`${ref.getFullYear()} год`;
   h+=`<div class="stat-card"><div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div><div class="heatmap-wrap">${buildHeatmap(type,ref)}</div><div class="hm-legend">Меньше <div style="display:flex;gap:2px">${['','lv1','lv2','lv3','lv4'].map(l=>`<div class="hm-cell ${l}" style="position:static"></div>`).join('')}</div> Больше</div></div>`;
   return h;
 }
 
-/* Привязка событий для тултипа стриков — вызывается после рендера */
-function attachStreakTip(){
-  const btn=document.getElementById('streakTipBtn');
-  const bubble=document.getElementById('streakTipBubble');
-  if(!btn||!bubble)return;
-  btn.addEventListener('click',e=>{
-    e.stopPropagation();
-    bubble.classList.toggle('hidden');
-  });
+/* Привязка событий для тултипов стриков.
+   Используем делегирование — вешаем один listener на document
+   один раз при старте, он работает для всех рендеров */
+function initStreakTipDelegation(){
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('[data-streak-tip]');
+    if(btn){
+      e.stopPropagation();
+      const uid = btn.dataset.streakTip;
+      const bubble = document.getElementById('streakTip_' + uid);
+      if(!bubble) return;
+      const isHidden = bubble.classList.contains('hidden');
+      // Закрываем все открытые streak-тултипы
+      document.querySelectorAll('.streak-tip-bubble').forEach(b=>b.classList.add('hidden'));
+      if(isHidden) bubble.classList.remove('hidden');
+      return;
+    }
+    // Клик в другом месте — закрываем все streak-тултипы
+    document.querySelectorAll('.streak-tip-bubble').forEach(b=>b.classList.add('hidden'));
+  }, true); // capture:true чтобы сработало раньше stopPropagation других элементов
 }
+
 
 /* ============================================================
    WELCOME BANNER
@@ -1525,7 +1541,6 @@ function renderInlineStats(){
 }
 function renderStatsPanel(){
   document.getElementById('statsPanelBody').innerHTML=buildStatsHTML(currentView,currentDate);
-  attachStreakTip();
 }
 
 function openStatsScreen(){
@@ -1538,7 +1553,6 @@ function closeStatsScreen(){document.getElementById('stats-screen').classList.re
 function syncSsToolbar(){document.getElementById('ssCalTitle').textContent=calTitleStr(ssView,ssDate);document.querySelectorAll('#vswStats .tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===ssView));}
 function renderSsBody(){
   document.getElementById('ssBody').innerHTML=buildStatsHTML(ssView,ssDate);
-  attachStreakTip();
 }
 function ssNavigate(dir){if(ssView==='month')ssDate=new Date(ssDate.getFullYear(),ssDate.getMonth()+dir,1);else if(ssView==='week')ssDate.setDate(ssDate.getDate()+dir*7);else ssDate=new Date(ssDate.getFullYear()+dir,0,1);syncSsToolbar();renderSsBody();}
 
@@ -1805,9 +1819,11 @@ window.addEventListener('resize',()=>renderWelcomeBanner());
   sw.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===currentView));
 });
 
+initStreakTipDelegation(); // вешаем делегирование один раз при старте
 renderHeaderAuth();
 render();
 initAuth().catch(e=>console.error('[habits] initAuth failed',e));
+
 </script>
 </body>
 </html>
