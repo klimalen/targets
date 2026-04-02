@@ -1244,9 +1244,33 @@ function openSettingsModal(){
    FEEDBACK SCREEN
 ============================================================ */
 function openFeedbackScreen(){
-  document.getElementById('fbMessage').value='';
-  document.getElementById('fbSubmitBtn').disabled=false;
-  document.getElementById('feedback-screen').classList.add('open');
+  if(isMobile()){
+    document.getElementById('fbMessage').value='';
+    document.getElementById('fbSubmitBtn').disabled=false;
+    document.getElementById('fbSubmitBtn').textContent='Отправить';
+    document.getElementById('feedback-screen').classList.add('open');
+  }else{
+    openModal(`
+      <div class="modal-title">💬 Обратная связь</div>
+      <div class="fb-desc">Расскажите, что можно улучшить, или сообщите об ошибке. Мы читаем каждое сообщение!</div>
+      <textarea class="fb-textarea" id="fbMsgModal" placeholder="Ваше сообщение..." maxlength="2000" style="margin-top:12px"></textarea>
+      <button class="fb-submit" id="fbSubmitModal" style="margin-top:14px">Отправить</button>`);
+    document.getElementById('fbSubmitModal')?.addEventListener('click',async()=>{
+      const msg=document.getElementById('fbMsgModal').value.trim();
+      if(!msg){showToast('Напишите сообщение','error');return;}
+      const btn=document.getElementById('fbSubmitModal');
+      btn.disabled=true;btn.textContent='Отправка...';
+      try{
+        const{error}=await sb.from('feedback').insert({message:msg,user_email:currentUser?.email||null});
+        if(error)throw error;
+        closeModal();showToast('Спасибо за обратную связь! 💜','success');
+      }catch(e){
+        console.error('[habits] feedback submit',e);
+        showToast('Не удалось отправить. Попробуйте позже.','error');
+        btn.disabled=false;
+      }finally{btn.textContent='Отправить';}
+    });
+  }
 }
 function closeFeedbackScreen(){document.getElementById('feedback-screen').classList.remove('open');}
 async function submitFeedback(){
