@@ -1435,7 +1435,7 @@ function buildStatsHTML(type,ref){
   h+=`<div class="stat-card"><div class="stat-card-title">🔥 Стрики</div>`;
   state.habits.forEach(hb=>{const s=calcStreak(hb.id);h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px"><div style="display:flex;align-items:center;gap:6px;font-size:.81rem">${hb.emoji} ${esc(hb.name)}</div><div style="display:flex;gap:8px;font-size:.75rem"><span>🔥 ${s.current}</span><span style="color:var(--yellow)">⭐ ${s.max}</span></div></div>`;});
   h+=`<div class="streak-legend"><strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас.<br><strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время.</div></div>`;
-  const hmLabel=type==='week'?'неделю':type==='month'?'месяц':`${ref.getFullYear()} год`;
+  const hmLabel=type==='week'?'неделя':type==='month'?'месяц':`${ref.getFullYear()} год`;
   h+=`<div class="stat-card"><div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div><div class="heatmap-wrap">${buildHeatmap(type,ref)}</div><div class="hm-legend">Меньше <div style="display:flex;gap:2px">${['','lv1','lv2','lv3','lv4'].map(l=>`<div class="hm-cell ${l}" style="position:static"></div>`).join('')}</div> Больше</div></div>`;
   return h;
 }
