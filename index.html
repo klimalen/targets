@@ -1578,17 +1578,35 @@ function weeklyChart(){
 
 function getUserRank(){
   const total=allTimeTotal();
-  if(total<10)return null;
-  // 3 ранга на основе среднего % выполнения за последние 4 недели
+  if(total<1)return null;
   const today=new Date();today.setHours(0,0,0,0);
-  let done=0,possible=0;
-  for(let i=0;i<28;i++){
-    const d=new Date(today);d.setDate(today.getDate()-i);
-    const k=dkd(d);
-    done+=Object.values(state.completions[k]||{}).filter(Boolean).length;
-    possible+=state.habits.length;
+  let done=0,expected=0;
+  for(const hb of state.habits){
+    // Сколько дней привычка существует (но не более 28)
+    const created=new Date(hb.createdAt||0);created.setHours(0,0,0,0);
+    const ageDays=Math.min(28,Math.max(1,Math.floor((today-created)/(86400000))+1));
+    // Считаем выполнения за этот период
+    let hDone=0;
+    for(let i=0;i<ageDays;i++){
+      const d=new Date(today);d.setDate(today.getDate()-i);
+      const k=dkd(d);
+      if(state.completions[k]&&state.completions[k][hb.id])hDone++;
+    }
+    done+=hDone;
+    // Ожидаемое количество с учётом цели
+    if(hb.goal){
+      const g=hb.goal;
+      let perDay;
+      if(g.type==='week')perDay=g.value/7;
+      else if(g.type==='month')perDay=g.value/30;
+      else if(g.type==='year')perDay=g.value/365;
+      else perDay=1;
+      expected+=Math.max(1,Math.round(perDay*ageDays));
+    }else{
+      expected+=ageDays;
+    }
   }
-  const pct=possible?Math.round(done/possible*100):0;
+  const pct=expected?Math.min(100,Math.round(done/expected*100)):0;
   if(pct>=80)return{icon:'🏆',name:'Чемпион',desc:'Абсолютный максимум! Вы покоряете свои цели.',pct,next:null};
   if(pct>=60)return{icon:'⭐',name:'Высшая лига',desc:'Ваша дисциплина — пример для подражания.',pct,next:{target:80,name:'Чемпион'}};
   if(pct>=40)return{icon:'🎯',name:'Стабильный темп',desc:'Вы нашли свой ритм — привычки работают на вас.',pct,next:{target:60,name:'Высшая лига'}};
