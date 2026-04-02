@@ -246,7 +246,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .fb-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--tr);font-family:inherit}
 .fb-submit:hover{background:var(--accent2);box-shadow:0 0 16px var(--glow)}
 .fb-submit:disabled{opacity:.5;cursor:not-allowed}
-.fb-email-note{font-size:.78rem;color:var(--text3);line-height:1.4}
 
 /* Stats screen mobile */
 #stats-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;flex-direction:column;overflow:hidden}
@@ -383,6 +382,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   margin-top:22px;padding-top:16px;
   border-top:1px solid var(--border);
   text-align:center;
+  font-size:.78rem;color:var(--text3);
 }
 .settings-footer a{
   font-size:.78rem;color:var(--text3);
@@ -627,7 +627,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   <div class="fb-body">
     <div class="fb-desc">Расскажите, что можно улучшить, или сообщите об ошибке. Мы читаем каждое сообщение!</div>
     <textarea class="fb-textarea" id="fbMessage" placeholder="Ваше сообщение..." maxlength="2000"></textarea>
-    <div class="fb-email-note" id="fbEmailNote"></div>
     <button class="fb-submit" id="fbSubmitBtn">Отправить</button>
   </div>
 </div>
@@ -1245,9 +1244,6 @@ function openSettingsModal(){
    FEEDBACK SCREEN
 ============================================================ */
 function openFeedbackScreen(){
-  const note=document.getElementById('fbEmailNote');
-  if(currentUser&&currentUser.email){note.textContent='Ответ будет отправлен на '+currentUser.email;}
-  else{note.textContent='Вы не авторизованы — мы не сможем ответить, но обязательно прочитаем.';}
   document.getElementById('fbMessage').value='';
   document.getElementById('fbSubmitBtn').disabled=false;
   document.getElementById('feedback-screen').classList.add('open');
