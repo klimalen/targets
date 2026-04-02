@@ -192,13 +192,14 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 #welcome-banner{display:none;margin:16px 14px 24px;background:linear-gradient(135deg,var(--bg3) 0%,var(--bg4) 100%);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;cursor:pointer;transition:border-color var(--tr),box-shadow var(--tr);position:relative;overflow:hidden}
 #welcome-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,106,247,.08) 0%,transparent 60%);pointer-events:none}
 #welcome-banner:hover{border-color:var(--accent);box-shadow:0 0 20px var(--glow)}
-.wb-emoji{font-size:2.8rem;margin-bottom:12px;display:block;line-height:1}
+.wb-top-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.wb-emoji{font-size:2.8rem;display:block;line-height:1;flex-shrink:0}
 .wb-title{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:6px}
 .wb-desc{font-size:.82rem;color:var(--text2);line-height:1.55;margin-bottom:20px}
 .wb-dots{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
 .wb-dot{display:flex;align-items:center;gap:10px;font-size:.8rem;color:var(--text2)}
 .wb-dot-icon{width:28px;height:28px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
-.wb-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--tr);font-family:inherit}
+.wb-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--tr);font-family:inherit;white-space:nowrap}
 .wb-btn:hover{background:var(--accent2);box-shadow:0 0 16px var(--glow)}
 
 /* Stat cards */
@@ -552,7 +553,10 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
       <div id="calendar-body"></div>
     </div>
     <div id="welcome-banner">
-      <span class="wb-emoji">🌱</span>
+      <div class="wb-top-row">
+        <span class="wb-emoji">🌱</span>
+        <button class="wb-btn" id="wbAddBtn">+ Добавить первую привычку</button>
+      </div>
       <div class="wb-title">Начните отслеживать привычки</div>
       <div class="wb-desc">Добавьте первую привычку и она сразу появится в вашем календаре. Это займёт меньше минуты!</div>
       <div class="wb-dots">
@@ -560,7 +564,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
         <div class="wb-dot"><div class="wb-dot-icon">🔥</div><span>Следите за стриками и прогрессом</span></div>
         <div class="wb-dot"><div class="wb-dot-icon">🎯</div><span>Задавайте цели и получайте статистику</span></div>
       </div>
-      <button class="wb-btn" id="wbAddBtn">+ Добавить первую привычку</button>
     </div>
     <div id="inline-stats"></div>
   </div>
