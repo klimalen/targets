@@ -192,13 +192,14 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 #welcome-banner{display:none;margin:16px 14px 24px;background:linear-gradient(135deg,var(--bg3) 0%,var(--bg4) 100%);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;cursor:pointer;transition:border-color var(--tr),box-shadow var(--tr);position:relative;overflow:hidden}
 #welcome-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,106,247,.08) 0%,transparent 60%);pointer-events:none}
 #welcome-banner:hover{border-color:var(--accent);box-shadow:0 0 20px var(--glow)}
-.wb-emoji{font-size:2.8rem;margin-bottom:12px;display:block;line-height:1}
+.wb-top-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.wb-emoji{font-size:2.8rem;display:block;line-height:1;flex-shrink:0}
 .wb-title{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:6px}
 .wb-desc{font-size:.82rem;color:var(--text2);line-height:1.55;margin-bottom:20px}
 .wb-dots{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
 .wb-dot{display:flex;align-items:center;gap:10px;font-size:.8rem;color:var(--text2)}
 .wb-dot-icon{width:28px;height:28px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
-.wb-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--tr);font-family:inherit}
+.wb-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--tr);font-family:inherit;white-space:nowrap}
 .wb-btn:hover{background:var(--accent2);box-shadow:0 0 16px var(--glow)}
 
 /* Stat cards */
@@ -230,6 +231,21 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 #stats-panel{width:300px;min-width:278px;background:var(--bg2);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;flex-shrink:0}
 .stats-hdr{padding:15px 16px 13px;border-bottom:1px solid var(--border);font-size:.9rem;font-weight:600}
 .stats-body-inner{padding:13px 15px;display:flex;flex-direction:column;gap:0}
+
+/* Feedback screen */
+#feedback-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;flex-direction:column;overflow:hidden}
+#feedback-screen.open{display:flex}
+.fb-header{display:flex;align-items:center;padding:0 18px;height:54px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.fb-back{display:flex;align-items:center;gap:5px;background:none;border:none;color:var(--accent);font-size:.9rem;font-weight:600;cursor:pointer;padding:4px 0;margin-right:12px;font-family:inherit}
+.fb-title{font-size:1rem;font-weight:700;flex:1}
+.fb-body{flex:1;overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;gap:16px}
+.fb-desc{font-size:.85rem;color:var(--text2);line-height:1.55}
+.fb-textarea{width:100%;min-height:140px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical;line-height:1.5;transition:border-color var(--tr)}
+.fb-textarea:focus{outline:none;border-color:var(--accent)}
+.fb-textarea::placeholder{color:var(--text3)}
+.fb-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--tr);font-family:inherit}
+.fb-submit:hover{background:var(--accent2);box-shadow:0 0 16px var(--glow)}
+.fb-submit:disabled{opacity:.5;cursor:not-allowed}
 
 /* Stats screen mobile */
 #stats-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;flex-direction:column;overflow:hidden}
@@ -366,6 +382,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   margin-top:22px;padding-top:16px;
   border-top:1px solid var(--border);
   text-align:center;
+  font-size:.78rem;color:var(--text3);
 }
 .settings-footer a{
   font-size:.78rem;color:var(--text3);
@@ -552,7 +569,10 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
       <div id="calendar-body"></div>
     </div>
     <div id="welcome-banner">
-      <span class="wb-emoji">🌱</span>
+      <div class="wb-top-row">
+        <button class="wb-btn" id="wbAddBtn">+ Добавить первую привычку</button>
+        <span class="wb-emoji">🌱</span>
+      </div>
       <div class="wb-title">Начните отслеживать привычки</div>
       <div class="wb-desc">Добавьте первую привычку и она сразу появится в вашем календаре. Это займёт меньше минуты!</div>
       <div class="wb-dots">
@@ -560,7 +580,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
         <div class="wb-dot"><div class="wb-dot-icon">🔥</div><span>Следите за стриками и прогрессом</span></div>
         <div class="wb-dot"><div class="wb-dot-icon">🎯</div><span>Задавайте цели и получайте статистику</span></div>
       </div>
-      <button class="wb-btn" id="wbAddBtn">+ Добавить первую привычку</button>
     </div>
     <div id="inline-stats"></div>
   </div>
@@ -597,6 +616,19 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
     </div>
   </div>
   <div class="ss-body" id="ssBody"></div>
+</div>
+
+<!-- Feedback screen -->
+<div id="feedback-screen">
+  <div class="fb-header">
+    <button class="fb-back" id="fbBackBtn">‹ Назад</button>
+    <div class="fb-title">💬 Обратная связь</div>
+  </div>
+  <div class="fb-body">
+    <div class="fb-desc">Расскажите, что можно улучшить, или сообщите об ошибке. Мы читаем каждое сообщение!</div>
+    <textarea class="fb-textarea" id="fbMessage" placeholder="Ваше сообщение..." maxlength="2000"></textarea>
+    <button class="fb-submit" id="fbSubmitBtn">Отправить</button>
+  </div>
 </div>
 
 <!-- Reset Password Fullscreen -->
@@ -1197,7 +1229,7 @@ function openSettingsModal(){
       </div>
     </div>
     <div class="settings-footer">
-      <a href="https://klimova-a.tilda.ws/connect" target="_blank" rel="noopener">Версия 2.4. Связаться</a>
+      Версия 2.4. <a href="#" id="settingsFeedbackLink">Связаться</a>
     </div>`,
     {formMode: true, title: '⚙️ Настройки'}
   );
@@ -1205,6 +1237,57 @@ function openSettingsModal(){
   document.getElementById('settingsChangePwBtn')?.addEventListener('click',()=>{closeModal();openChangePasswordModal();});
   document.getElementById('settingsLogoutBtn')?.addEventListener('click',async()=>{closeModal();await sb.auth.signOut();showToast('Вы вышли из аккаунта','info');});
   document.getElementById('settingsDeleteBtn')?.addEventListener('click',()=>{openConfirm('Удалить профиль?','Все ваши привычки и история выполнения будут безвозвратно удалены. Это действие нельзя отменить.',deleteUserProfile);});
+  document.getElementById('settingsFeedbackLink')?.addEventListener('click',(e)=>{e.preventDefault();closeModal();openFeedbackScreen();});
+}
+
+/* ============================================================
+   FEEDBACK SCREEN
+============================================================ */
+function openFeedbackScreen(){
+  if(isMobile()){
+    document.getElementById('fbMessage').value='';
+    document.getElementById('fbSubmitBtn').disabled=false;
+    document.getElementById('fbSubmitBtn').textContent='Отправить';
+    document.getElementById('feedback-screen').classList.add('open');
+  }else{
+    openModal(`
+      <div class="modal-title">💬 Обратная связь</div>
+      <div class="fb-desc">Расскажите, что можно улучшить, или сообщите об ошибке. Мы читаем каждое сообщение!</div>
+      <textarea class="fb-textarea" id="fbMsgModal" placeholder="Ваше сообщение..." maxlength="2000" style="margin-top:12px"></textarea>
+      <button class="fb-submit" id="fbSubmitModal" style="margin-top:14px">Отправить</button>`);
+    document.getElementById('fbSubmitModal')?.addEventListener('click',async()=>{
+      const msg=document.getElementById('fbMsgModal').value.trim();
+      if(!msg){showToast('Напишите сообщение','error');return;}
+      const btn=document.getElementById('fbSubmitModal');
+      btn.disabled=true;btn.textContent='Отправка...';
+      try{
+        const{error}=await sb.from('feedback').insert({message:msg,user_email:currentUser?.email||null});
+        if(error)throw error;
+        closeModal();showToast('Спасибо за обратную связь! 💜','success');
+      }catch(e){
+        console.error('[habits] feedback submit',e);
+        showToast('Не удалось отправить. Попробуйте позже.','error');
+        btn.disabled=false;
+      }finally{btn.textContent='Отправить';}
+    });
+  }
+}
+function closeFeedbackScreen(){document.getElementById('feedback-screen').classList.remove('open');}
+async function submitFeedback(){
+  const msg=document.getElementById('fbMessage').value.trim();
+  if(!msg){showToast('Напишите сообщение','error');return;}
+  const btn=document.getElementById('fbSubmitBtn');
+  btn.disabled=true;btn.textContent='Отправка...';
+  try{
+    const{error}=await sb.from('feedback').insert({message:msg,user_email:currentUser?.email||null});
+    if(error)throw error;
+    closeFeedbackScreen();
+    showToast('Спасибо за обратную связь! 💜','success');
+  }catch(e){
+    console.error('[habits] feedback submit',e);
+    showToast('Не удалось отправить. Попробуйте позже.','error');
+    btn.disabled=false;
+  }finally{btn.textContent='Отправить';}
 }
 
 /* ============================================================
@@ -1432,7 +1515,7 @@ function buildStatsHTML(type,ref){
   h+=`<div class="stat-card"><div class="stat-card-title">🔥 Стрики</div>`;
   state.habits.forEach(hb=>{const s=calcStreak(hb.id);h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px"><div style="display:flex;align-items:center;gap:6px;font-size:.81rem">${hb.emoji} ${esc(hb.name)}</div><div style="display:flex;gap:8px;font-size:.75rem"><span>🔥 ${s.current}</span><span style="color:var(--yellow)">⭐ ${s.max}</span></div></div>`;});
   h+=`<div class="streak-legend"><strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас.<br><strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время.</div></div>`;
-  const hmLabel=type==='week'?'неделю':type==='month'?'месяц':`${ref.getFullYear()} год`;
+  const hmLabel=type==='week'?'неделя':type==='month'?'месяц':`${ref.getFullYear()} год`;
   h+=`<div class="stat-card"><div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div><div class="heatmap-wrap">${buildHeatmap(type,ref)}</div><div class="hm-legend">Меньше <div style="display:flex;gap:2px">${['','lv1','lv2','lv3','lv4'].map(l=>`<div class="hm-cell ${l}" style="position:static"></div>`).join('')}</div> Больше</div></div>`;
   return h;
 }
@@ -1789,6 +1872,8 @@ document.getElementById('welcome-banner').addEventListener('click',()=>openHabit
 document.getElementById('wbAddBtn').addEventListener('click',e=>{e.stopPropagation();openHabitModal();});
 document.getElementById('mobileStatsBtn').addEventListener('click',openStatsScreen);
 document.getElementById('statsBackBtn').addEventListener('click',closeStatsScreen);
+document.getElementById('fbBackBtn').addEventListener('click',closeFeedbackScreen);
+document.getElementById('fbSubmitBtn').addEventListener('click',submitFeedback);
 
 document.getElementById('habitsList').addEventListener('click',e=>{
   const btn=e.target.closest('[data-action]');if(!btn)return;e.stopPropagation();
