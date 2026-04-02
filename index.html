@@ -841,14 +841,8 @@ async function migrateLocalData(){
       for(let i=0;i<completionsToInsert.length;i+=BATCH){const batch=completionsToInsert.slice(i,i+BATCH);await sb.from('completions').upsert(batch,{onConflict:'habit_id,date',ignoreDuplicates:true});}
     }
     if(local.celebrations&&Object.keys(local.celebrations).length>0)await sb.from('profiles').update({celebrations:local.celebrations}).eq('id',currentUser.id);
-   
-    
     await sb.from('profiles').update({has_migrated_local_data:true}).eq('id',currentUser.id);
-    ym(108360901,'reachGoal','local_data_migrated',{habits_count:habitsToInsert.length});
     showToast('Данные успешно перенесены в облако ☁️','success');
-
-
-    
   }catch(e){console.error('[habits] migrateLocalData',e);showToast('Не удалось перенести часть данных. Данные на устройстве сохранены.','error');}
   finally{setSyncing(false);}
 }
@@ -1085,32 +1079,20 @@ function openAuthModal(initialMode='login'){
     const email=document.getElementById('authEmail').value.trim();
     const password=document.getElementById('authPassword').value;
     try{
-
       if(mode==='login'){
         const{error}=await sb.auth.signInWithPassword({email,password});
         if(error)throw error;
-        closeModal();
-        ym(108360901,'reachGoal','user_logged_in');
-        showToast('Добро пожаловать! 👋','success');
- 
+        closeModal();showToast('Добро пожаловать! 👋','success');
       }else{
         const{data,error}=await sb.auth.signUp({email,password});
         if(error)throw error;
         closeModal();
-        if(data.session){
-          ym(108360901,'reachGoal','user_registered');
-          showToast('Аккаунт создан! Добро пожаловать 🎉','success');
-        }else{
-          showToast('Проверьте почту для подтверждения аккаунта','info');
-        }
-
-    }catch(e){
-      console.error('[habits] auth error',e);
-      ym(108360901,'reachGoal','auth_error',{mode:mode,error:(e.message||'').slice(0,50)});
-      showAuthError(authErrorText(e));
-    }finally{
-      setLoading(false);
-    }
+        if(data.session)showToast('Аккаунт создан! Добро пожаловать 🎉','success');
+        else showToast('Проверьте почту для подтверждения аккаунта','info');
+      }
+    }catch(e){console.error('[habits] auth error',e);showAuthError(authErrorText(e));}
+    finally{setLoading(false);}
+  }
 
   async function submitForgot(){
     const email=(document.getElementById('forgotEmail')?.value||'').trim();
@@ -1293,20 +1275,13 @@ function todayKey(){return dkd(new Date());}
 function isToday(dt){return dkd(dt)===todayKey();}
 function getDone(hid,key){return!!(state.completions[key]&&state.completions[key][hid]);}
 
-
 async function toggleDoneAsync(hid,key){
   const wasDone=getDone(hid,key);
   if(!state.completions[key])state.completions[key]={};
   if(wasDone){delete state.completions[key][hid];if(!Object.keys(state.completions[key]).length)delete state.completions[key];}
   else state.completions[key][hid]=true;
   const isDoneNow=!wasDone;
-  if(isDoneNow){
-    ym(108360901,'reachGoal','habit_checked',{is_today:key===todayKey()?1:0});
-    if(allTimeTotal()===1) ym(108360901,'reachGoal','first_habit_checked_ever');
-  }
   if(!currentUser)saveLocalState();
-    
-    
   else{
     toggleCompletionBackend(hid,key,isDoneNow).catch(e=>{
       console.error('[habits] toggleCompletion failed, reverting',e);
@@ -1400,9 +1375,7 @@ function flushCelebrations(){
 }
 
 function showCelebration(habit,goalType,goalValue){
-  ym(108360901,'reachGoal','goal_achieved',{goal_type:goalType,goal_value:goalValue});
   const overlay=document.getElementById('cel-overlay');
-
   const body=document.getElementById('celBody');
   const particles=document.getElementById('celParticles');
   const periodLabel=GL_FULL[goalType];
@@ -1558,8 +1531,7 @@ function renderInlineStats(){
 }
 function renderStatsPanel(){document.getElementById('statsPanelBody').innerHTML=buildStatsHTML(currentView,currentDate);}
 
-function openStatsScreen(){ym(108360901,'reachGoal','stats_opened');ssDate=new Date();syncSsToolbar();renderSsBody();document.getElementById('stats-screen').classList.add('open');}
-  
+function openStatsScreen(){ssDate=new Date();syncSsToolbar();renderSsBody();document.getElementById('stats-screen').classList.add('open');}
 function closeStatsScreen(){document.getElementById('stats-screen').classList.remove('open');}
 function syncSsToolbar(){document.getElementById('ssCalTitle').textContent=calTitleStr(ssView,ssDate);document.querySelectorAll('#vswStats .tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===ssView));}
 function renderSsBody(){document.getElementById('ssBody').innerHTML=buildStatsHTML(ssView,ssDate);}
@@ -1653,9 +1625,7 @@ async function saveHabit(){
   const gt=document.getElementById('gType').value;
   const goal=gv>0?{type:gt,value:gv}:null;
   if(editId){const h=state.habits.find(x=>x.id===editId);if(h)Object.assign(h,{name,emoji:selEmoji,color:selColor,goal});if(currentUser)await upsertHabitBackend(h).catch(e=>console.error(e));showToast('Привычка обновлена','success');}
- 
-    else{const nh={id:'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name,emoji:selEmoji,color:selColor,goal,createdAt:Date.now()};state.habits.push(nh);if(currentUser)await upsertHabitBackend(nh).catch(e=>console.error(e));ym(108360901,'reachGoal','habit_created',{has_goal:goal?1:0,habits_total:state.habits.length});showToast('Привычка добавлена 🎉','success');}
-
+  else{const nh={id:'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name,emoji:selEmoji,color:selColor,goal,createdAt:Date.now()};state.habits.push(nh);if(currentUser)await upsertHabitBackend(nh).catch(e=>console.error(e));showToast('Привычка добавлена 🎉','success');}
   if(!currentUser)saveLocalState();
   closeModal();render();
 }
